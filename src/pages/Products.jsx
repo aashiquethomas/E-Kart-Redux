@@ -1,26 +1,77 @@
-import React from 'react'
+import { useEffect, useState } from 'react';
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllProducts } from '../redux/Slices/productSlice';
+import Header from '../components/Header';
+import { faBackward, faForward } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 
 function Products() {
+
+  const { loading, allProducts, error } = useSelector((state) => state.productReducer);
+  const dispatch = useDispatch();
+
+  //Pagination simple logic
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 8;
+  const totalPages = Math.ceil(allProducts.length / productsPerPage);
+  const currentPageLastIndex = currentPage * productsPerPage;
+  const currentPageFirstIndex = currentPageLastIndex - productsPerPage;
+  const currentProducts = allProducts.slice(currentPageFirstIndex, currentPageLastIndex);
+
+  const navigateNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  }
+  const navigatePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  }
+  useEffect(() => {
+    dispatch(getAllProducts());
+  }, [dispatch]);
+
   return (
-    <div className='m-5'>
-      <div className="row">
-        {/* Duplicate column according to products */}
-        <div className="col-3">
-          {/* Cards */}
-          <Card >
-            <Card.Img style={{ height: '250px' }} variant="top" src="https://imgs.search.brave.com/H0zge1b1vGthnoMkiS40tFMaSr2ZoDL3M069DQ_3Eok/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTU4/OTk5NjM2MS9waG90/by9iZWF1dHktcHJv/ZHVjdHMtY29zbWV0/aWNzLXByb2R1Y3Rz/LXBlcmZ1bWUtcHJv/ZHVjdHMtYm9keS1j/YXJlLXByb2R1Y3Rz/LWJhYnktY2FyZS1w/cm9kdWN0cy1hbmQu/anBnP3M9NjEyeDYx/MiZ3PTAmaz0yMCZj/PVlMMHNBSzJ4VFVF/X1pwTW1yTEQ5NldF/LXdDOHlpanoxbHFv/a2Fna011X2c9" />
-            <Card.Body className='text-center'>
-              <Card.Title>Card Title</Card.Title>
-              <Link to={`product/:id`} className="btn btn-primary">View</Link>
-            </Card.Body>
-          </Card>
+    <>
+      <Header insideProduct={true} />
+      <div className='m-5'>
+        {loading ? (
+          <div className="text-center py-5 font-weight-bold">Loading...</div>
+        ) :
+          allProducts.length > 0 ? (
+            <div className="row">
+              {
+                currentProducts.map((product) => (
+                  <div className="col-3" key={product.id}>
+                    <Card>
+                      <Card.Img style={{ height: '250px' }} variant="top" src={product.image} />
+                      <Card.Body className='text-center'>
+                        <Card.Title>{product.title}</Card.Title>
+                        <Link to={`/product/${product.id}`} className="btn btn-primary">View</Link>
+                      </Card.Body>
+                    </Card>
+                  </div>
+                ))}
+            </div>
+          ) : (
+            <div className="text-center py-5 font-weight-bold">
+              {error || 'No products found.'}
+            </div>
+          )}
+        <div className="text-center py-3 fs-2 font-weight-bold">
+          <button className="btn btn-outline-primary" onClick={navigatePrevPage} disabled={currentPage === 1}>
+            <FontAwesomeIcon icon={faBackward} />
+          </button>
+          {currentPage} of {totalPages}
+          <button className="btn btn-outline-primary" onClick={navigateNextPage} disabled={currentPage === totalPages}>
+            <FontAwesomeIcon icon={faForward} />
+          </button>
+
         </div>
       </div>
-
-    </div>
-  )
+    </>
+  );
 }
 
 export default Products
