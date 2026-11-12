@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import Header from '../components/Header';
@@ -13,23 +12,21 @@ function View() {
   const { id } = useParams()
 
   const { allProducts } = useSelector(state => state.productReducer)
-  const [product, setProduct] = useState({})
+  const product = allProducts.find(item => item.id === Number(id)) || {}
 
-  const usersWislist = useSelector(state => state.WishlistReducer)
+  const usersWishlist = useSelector(state => state.WishlistReducer)
   const userCart = useSelector(state => state.cartReducer)
 
   const dispatch = useDispatch()
 
 
 
-  useEffect(() => {
-    setProduct(allProducts.find(item => item.id === Number(id)) || {})
-  }, [allProducts, id])
-
   const handleWishlist = () => {
     // check the product in the wishlist
-    const existingItem = usersWislist.find(item => item.id == product.id)
-    if (existingData) {
+    if (!product?.id) return
+
+    const existingItem = usersWishlist.find(item => item.id === product.id)
+    if (existingItem) {
       Swal.fire({
         title: "Sorry",
         text: "Product already in your Wishlist",
@@ -43,12 +40,14 @@ function View() {
 
   const handleCart = () => {
     // check the product in the cart
-    const existingItem = usersCart.find(item => item?.id == product?.id)
+    if (!product?.id) return
+
+    const existingItem = userCart.find(item => item.id === product.id)
     dispatch(addCart(product))
     Swal.fire({
       title: "success",
-      text: existingItem?`${existingItem.title} quantity incremented` : "Product added to your cart",
-      icon: "Success",
+      text: existingItem ? `${existingItem.title} quantity incremented` : "Product added to your cart",
+      icon: "success",
       confirmButtonText: "Ok"
     })
   }
@@ -65,7 +64,7 @@ function View() {
 
               <div className="mt-3 d-flex justify-content-evenly">
                 <button onClick={handleWishlist} className="btn btn-danger mt-3">Add to Wishlist</button>
-                <button onClick="" className="btn btn-success mt-3">Add to Cart</button>
+                <button onClick={handleCart} disabled={!product?.id} className="btn btn-success mt-3">Add to Cart</button>
 
               </div>
 

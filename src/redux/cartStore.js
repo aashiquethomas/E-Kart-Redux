@@ -6,9 +6,9 @@ import cartSlice from './Slices/cartSlice';
 
 const cartStore = configureStore({
   reducer: {
-    productReducer:productSlice,
-    WishlistReducer:wishlistSlice,
-    cartReducer:cartSlice
+    productReducer,
+    WishlistReducer,
+    cartReducer: cartSlice
   },
 });
 

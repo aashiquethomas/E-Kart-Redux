@@ -1,16 +1,12 @@
-import React from 'react'
 import Card from 'react-bootstrap/Card';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeartCirclePlus, faCartPlus } from '@fortawesome/free-solid-svg-icons';
+import { faHeartCircleXmark, faCartPlus } from '@fortawesome/free-solid-svg-icons';
 import Header from '../components/Header';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router';
 import { removeFromWishlist } from '../redux/Slices/wishlistSlice';
 import Swal from 'sweetalert2';
 import { addCart } from '../redux/Slices/cartSlice';
-
-const userCart = useSelector(state => state.cartReducer)
-
 
 function Wishlist() {
 
@@ -21,9 +17,9 @@ function Wishlist() {
 
   const handleCart = (product) => {
     // check the product in the cart
-    const existingItem = usersCart.find(item => item?.id == product?.id)
+    const existingItem = userCart.find(item => item?.id === product?.id)
     dispatch(addCart(product))
-    dispatch(removeFromWishlist(product.id))
+    dispatch(removeFromWishlist(product))
     Swal.fire({
       title: "success",
       text: existingItem ? `${existingItem.title} quantity incremented` : "Product added to your cart",
@@ -51,9 +47,9 @@ function Wishlist() {
                         <Card.Body className='text-center'>
                           <Card.Title>{item?.title}</Card.Title>
                           <div className="d-flex justify-content-evenly">
-                            <button onClick={() => dispatch(removeFromWishlist(item?.id))} className="btn btn-danger"><FontAwesomeIcon icon={faHeartCircleXmark} />
+                            <button onClick={() => dispatch(removeFromWishlist(item))} className="btn btn-danger"><FontAwesomeIcon icon={faHeartCircleXmark} />
                             </button>
-                            <button onClick={()=> dispatch(handleCart(item))} className="btn btn-success"><FontAwesomeIcon icon={faCartPlus} /></button>
+                            <button onClick={() => handleCart(item)} className="btn btn-success"><FontAwesomeIcon icon={faCartPlus} /></button>
                           </div>
                         </Card.Body>
                       </Card>
